@@ -1,0 +1,223 @@
+<html>
+    <head>
+        <!-- <script src="jquery-3.2.1.min.js"></script> -->
+        <script src="fabric.js"></script>
+        <script src="vue.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.3.4"></script>
+        
+
+        <meta charset="utf-8">
+        <title>Seat-Map-Maker</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script> -->
+        <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+        <!--Ty CSS-->
+        <link rel="stylesheet" type="text/css" href="styles.css"/>
+        
+        <style type="text/css">
+            /* body {
+                margin: 0;
+            }
+    
+            canvas {
+                border: 1px solid black;
+            } */
+        </style>
+    </head>
+    
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="row">
+                <img class="navbar-brand" src="res\logo2.png" alt="logo">
+                <ul class="nav navbar-nav">
+                    <!-- <li class="nav-item"><a href="#" class="nav-link">START</a></li> -->
+                </ul>
+            </div>
+        </nav>
+
+        <div id = "wrapper">
+            <div id = "vue-app" class = "container-fluid">
+                <drop-down-menu></drop-down-menu>
+            </div> 
+            <div id="canvas">
+                <canvas id="c" width="1920" height="1080" data-toggle="popover"></canvas>
+            </div>
+        </div> 
+    </body>
+
+    <template id = "drop-down-menu">
+        <div class="dropdown"  v-on:click = "preventDropmenuClosing" >
+            <button class="btn btn-lg dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" v-bind:aria-expanded="false">
+                Toolbox
+            </button>
+            <div class="dropdown-menu">
+                <br>
+                <!-- each button tag has a v-on directive that leads to a different listener method -->
+                <button v-on:click='setAddSeating' class="dropdown-item">Add Area</button>
+                <add-form></add-form>
+                <button v-on:click='setEditTool' class="dropdown-item">Edit Area</button>
+                <edit-form></edit-form>
+                <button v-on:click="setDeleteSeating" class="dropdown-item">Delete Seating</button>
+                <button class="dropdown-item" v-on:click = 'performDownload'>Download</button>
+                <br>
+            </div>
+
+        </div>
+    </template>
+
+    <template id = "add-form">
+        <!-- v-show directive makes div invisible if "showSeatingForm" is false -->
+        <div v-show="showAddSeatForm">
+            <form>
+                <!-- v-model directive binds data from field to data in Vue instance -->
+                Name: <input type="text" id="addName" value="Test Name" v-model ="sectionName" placeholder="Section Name"><br>
+                <!--<p>Seating Type</p><br>-->
+                Price: <input type="number" id="addPrice" value="100" style="width:100" v-model="price"><br>
+                Section Type: <form>
+                    <input type="radio" name="SectionType" value="Seating" v-model = "sectionType"> Seating
+                    <input type="radio" name="SectionType" value="Table" v-model = "sectionType"> Table
+                    <input type="radio" name="SectionType" value="General" v-model = "sectionType"> General
+                </form>
+                <template v-if="sectionType!='General'">
+                    Quality: <form>
+                        <input type="radio"  name="Type" value="VIP" v-model ="seatingType"> VIP
+                        <input type="radio" name="Type" value="Normal" v-model ="seatingType"> Normal
+                        <input type="radio" name="Type" value="Economy" v-model ="seatingType"> Economy
+                    </form>
+                </template>
+                <template v-else>
+                    Color: <input type="text" id="colorSelect" value="ffffff" v-model="color">
+                </template>
+                <!--<Section-Type></Section-Type>-->
+                <template v-if="sectionType=='Seating'">
+                    Columns: <input type="text" id="addCols" value="5" style="width:30" v-model="columns" placeholder="#"></input>
+                    Rows: <input type="text" id="addRows" value="7" style="width:30" v-model="rows" placeholder="#"></input><br>
+                    Column numbers starting at 
+                        <input type="text" id="colNumStart" value="7" style="width:30" v-model="colStart" placeholder="#"></input><br>
+                    Row names starting at 
+                        <select id="rowNameStart" v-model="rowStart">
+                            <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+                            <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+                            <option value="G">G</option><option value="H">H</option><option value="I">I</option>
+                            <option value="J">J</option><option value="K">K</option><option value="L">L</option>
+                            <option value="M">M</option><option value="N">N</option><option value="O">O</option>
+                            <option value="P">P</option><option value="Q">Q</option><option value="R">R</option>
+                            <option value="S">S</option><option value="T">T</option><option value="U">U</option>
+                            <option value="V">V</option><option value="W">W</option><option value="X">X</option>
+                            <option value="Y">Y</option><option value="Z">Z</option>
+                        </select>
+                </template>
+                <template v-if="sectionType=='Table'">
+                    Table Type: <form>
+                        <input type="radio"  name="Type" value="round" v-model ="tableType"> Round
+                        <input type="radio" name="Type" value="rect" v-model ="tableType"> Rectangle
+                    </form>
+                </template>
+                <template v-if="tableType=='round' && sectionType=='Table'">
+                    Seats: <input type="text" id="addRoundSeats" value="5" style="width:30" v-model="roundSeats" placeholder="#"></input>
+                </template>
+                <template v-if="tableType=='rect' && sectionType=='Table'">
+                    XSeats: <input type="text" id="addXSeats" value="5" style="width:30" v-model="xSeats" placeholder="#"></input>
+                    YSeats: <input type="text" id="addYSeats" value="5" style="width:30" v-model="ySeats" placeholder="#"></input>
+                </template>
+                
+                <br>
+            </form>
+            <!-- v-on calls "submitSeatingData" when a click event is detected on this button  -->
+            <button v-on:click ="submitSeatingData">Submit</button>
+            <!-- Debugging to see that the form toggle flag is being set -->
+        <p v-show="false"><span>{{showAddSeatForm}}</span></p>
+        </div>        
+    </template>
+
+    <template id = "edit-form">
+        <!-- v-show directive makes div invisible if "showSeatingForm" is false -->
+        <div v-show="showEditSeatingForm">
+            <form>
+                <!-- v-model directive binds data from field to data in Vue instance -->
+                Name: <input type="text" id="editName" value="Test Name" v-model ="sectionName" placeholder="Section Name"><br>
+                Price: <input type="number" id="newPrice" style="width: 100" v-model="price"><br>
+                <!--<p>Seating Type</p><br>-->
+                Section Type: <form>
+                    <input type="radio" name="SectionType" value="Seating" v-model = "sectionType"> Seating
+                    <input type="radio" name="SectionType" value="Table" v-model = "sectionType"> Table
+                    <input type="radio" name="SectionType" value="General" v-model = "sectionType"> General
+                </form>
+                <template v-if="sectionType!='General'">
+                    Quality: <form>
+                        <input type="radio"  name="Type" value="VIP" v-model ="seatingType"> VIP
+                        <input type="radio" name="Type" value="Normal" v-model ="seatingType"> Normal
+                        <input type="radio" name="Type" value="Economy" v-model ="seatingType"> Economy
+                    </form>
+                </template>
+                <template v-else>
+                    Color: <input type="text" id="colorSelect" value="ffffff" v-model="sectionColor">
+                </template>
+                <!--<Section-Type></Section-Type>-->
+                <template v-if="sectionType=='Seating'">
+                    Columns: <input type="text" id="addCols" value="5" style="width:30" v-model="columns" placeholder="#"></input>
+                    Rows: <input type="text" id="addRows" value="7" style="width:30" v-model="rows" placeholder="#"></input><br>
+                    Column numbers starting at 
+                        <input type="text" id="colNumStart" value="7" style="width:30" v-model="colStart" placeholder="#"></input><br>
+                    Row names starting at 
+                        <select id="rowNameStart" v-model="rowStart">
+                            <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+                            <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+                            <option value="G">G</option><option value="H">H</option><option value="I">I</option>
+                            <option value="J">J</option><option value="K">K</option><option value="L">L</option>
+                            <option value="M">M</option><option value="N">N</option><option value="O">O</option>
+                            <option value="P">P</option><option value="Q">Q</option><option value="R">R</option>
+                            <option value="S">S</option><option value="T">T</option><option value="U">U</option>
+                            <option value="V">V</option><option value="W">W</option><option value="X">X</option>
+                            <option value="Y">Y</option><option value="Z">Z</option>
+                        </select>
+                </template>
+                <template v-if="sectionType=='Table'">
+                    Table Type: <form>
+                        <input type="radio"  name="Type" value="round" v-model ="tableType"> Round
+                        <input type="radio" name="Type" value="rect" v-model ="tableType"> Rectangle
+                    </form>
+                </template>
+                <template v-if="tableType=='round' && sectionType=='Table'">
+                    Seats: <input type="text" id="addRoundSeats" value="5" style="width:30" v-model="roundSeats" placeholder="#"></input>
+                </template>
+                <template v-if="tableType=='rect' && sectionType=='Table'">
+                    XSeats: <input type="text" id="addXSeats" value="5" style="width:30" v-model="xSeats" placeholder="#"></input>
+                    YSeats: <input type="text" id="addYSeats" value="5" style="width:30" v-model="ySeats" placeholder="#"></input>
+                </template>
+                
+            </form>
+            <!-- v-on calls "submitSeatingData" when a click event is detected on this button  -->
+            <button v-on:click ="submitEditSeating">Submit</button>
+            <!-- Debugging to see that the form toggle flag is being set -->
+        <!--<p v-show="false"><span>{{showAddSeatForm}}</span></p>-->
+        </div>
+    </template>
+
+    <!--<template id = "edit-form">-->
+        <!--&lt;!&ndash; v-show directive makes div invisible if "showEditSeatingForm" is false &ndash;&gt;-->
+        <!--<div v-show="showEditSeatingForm">-->
+            <!--<form>-->
+                <!--Edit Seating <br>-->
+                <!--Name: <input type="text" id="newName" v-model="name" placeholder="Section Name"></input><br>-->
+                <!--Seating Type: <form>-->
+                    <!--<input type="radio"  name="Type" value="VSeating" v-model ="seatingType" :checked="seatingType=='VSeating'"> VIP-->
+                    <!--<input type="radio" name="Type" value="NSeating" v-model ="seatingType" :checked="seatingType=='NSeating'"> Seating-->
+                    <!--<input type="radio" name="Type" value="Standing" v-model ="seatingType" :checked="seatingType=='Standing'"> Standing-->
+                <!--</form>-->
+                <!--Columns: <input type="text" id="newCols" style="width:30" v-model="cols" placeholder="#"></input>-->
+                <!--Rows: <input type="text" id="newRows" style="width:30" v-model="rows" placeholder="#"></input>-->
+                <!--<br>-->
+            <!--</form>-->
+            <!--<button v-on:click ="submitEditSeating">Submit</button>-->
+        <!--</div>-->
+    <!--</template>-->
+
+    <script src="main.js"></script>
+</html>
