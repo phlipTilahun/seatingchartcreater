@@ -37,25 +37,7 @@ function editSeating() {
 function regroupSeating() {
     bus.$emit('sigRegroupSeating',  []);
 };
-// canvas panning - adapted from http://jsfiddle.net/gncabrera/hkee5L6d/5/
-// pans with mouse click only
-// var panning = false;
-// fabCanvas.on('mouse:up', function(e) {
-//     panning = false;
-// });
-// fabCanvas.on('mouse:down', function(e) {
-//     if (e.target == null) {
-//         panning = true;
-//     }
-// });
-// fabCanvas.on('mouse:move', function (e) {
-//     if (panning && e && e.e) {
-//         //debugger;
-//         var units = 10;
-//         var delta = new fabric.Point(e.e.movementX, e.e.movementY);
-//         fabCanvas.relativePan(delta);
-//     }
-// });
+
 
 // pans with alt key
 fabCanvas.on('mouse:down', function(opt) {
@@ -169,7 +151,7 @@ Vue.component('add-form',{
 //    template: '#section-type',
     data(){
         return{
-            sectionName: "default name",
+            sectionName: "",
             seatingType: "Normal",
             sectionType: "Seating",
             tableType: "round",
@@ -530,7 +512,7 @@ Vue.component('add-table-form',{
     template: '#add-table-form',
     data(){
         return{
-            sectionName: "default name",
+            sectionName: "",
             tableType: "round",
             seats: 2,
             xSeats: 5,

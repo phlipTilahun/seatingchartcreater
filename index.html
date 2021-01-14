@@ -7,7 +7,7 @@
         
 
         <meta charset="utf-8">
-        <title>Seat-Map-Maker</title>
+        <title>Seating-Chart-Creater</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         
         <!-- Bootstrap CSS -->
@@ -19,16 +19,7 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
         <!--Ty CSS-->
         <link rel="stylesheet" type="text/css" href="styles.css"/>
-        
-        <style type="text/css">
-            /* body {
-                margin: 0;
-            }
-    
-            canvas {
-                border: 1px solid black;
-            } */
-        </style>
+
     </head>
     
     <body>
@@ -53,18 +44,19 @@
 
     <template id = "drop-down-menu">
         <div class="dropdown"  v-on:click = "preventDropmenuClosing" >
-            <button class="btn btn-lg dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" v-bind:aria-expanded="false">
-                Toolbox
+            <button class="btn btn-lg btn-info dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" v-bind:aria-expanded="false">
+                Tool Kit
             </button>
+            
             <div class="dropdown-menu">
                 <br>
                 <!-- each button tag has a v-on directive that leads to a different listener method -->
-                <button v-on:click='setAddSeating' class="dropdown-item">Add Area</button>
+                <button v-on:click='setAddSeating' class="dropdown-item btn btn-primary" type="button">Add Area</button>
                 <add-form></add-form>
-                <button v-on:click='setEditTool' class="dropdown-item">Edit Area</button>
+                <button v-on:click='setEditTool' class="dropdown-item btn btn-warning" type="button">Edit Area</button>
                 <edit-form></edit-form>
-                <button v-on:click="setDeleteSeating" class="dropdown-item">Delete Seating</button>
-                <button class="dropdown-item" v-on:click = 'performDownload'>Download</button>
+                <button v-on:click="setDeleteSeating" class="dropdown-item btn btn-warning" type="button">Delete Seating</button>
+                <button class="dropdown-item btn btn-warning" v-on:click = 'performDownload' type="button">Download</button>
                 <br>
             </div>
 
@@ -76,14 +68,15 @@
         <div v-show="showAddSeatForm">
             <form>
                 <!-- v-model directive binds data from field to data in Vue instance -->
-                Name: <input type="text" id="addName" value="Test Name" v-model ="sectionName" placeholder="Section Name"><br>
+                Name: <input type="text" id="addName" value="Test Name" v-model ="sectionName" placeholder="Section Name" required><br>
                 <!--<p>Seating Type</p><br>-->
-                Price: <input type="number" id="addPrice" value="100" style="width:100" v-model="price"><br>
-                Section Type: <form>
+                Price:&nbsp; <input type="number" id="addPrice" value="100" style="width:100" v-model="price"><br>
+                <!--Section Type: <form>
                     <input type="radio" name="SectionType" value="Seating" v-model = "sectionType"> Seating
                     <input type="radio" name="SectionType" value="Table" v-model = "sectionType"> Table
                     <input type="radio" name="SectionType" value="General" v-model = "sectionType"> General
-                </form>
+                </form>-->
+                <br>
                 <template v-if="sectionType!='General'">
                     Quality: <form>
                         <input type="radio"  name="Type" value="VIP" v-model ="seatingType"> VIP
@@ -96,11 +89,13 @@
                 </template>
                 <!--<Section-Type></Section-Type>-->
                 <template v-if="sectionType=='Seating'">
-                    Columns: <input type="text" id="addCols" value="5" style="width:30" v-model="columns" placeholder="#"></input>
-                    Rows: <input type="text" id="addRows" value="7" style="width:30" v-model="rows" placeholder="#"></input><br>
-                    Column numbers starting at 
+                    Number of Columns: <input type="text" id="addCols" value="5" style="width:30" v-model="columns" placeholder="#"></input>
+                    <br>
+                    Number of Rows:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="addRows" value="7" style="width:30" v-model="rows" placeholder="#"></input><br>
+                    <br>
+                    Column Starting Number: 
                         <input type="text" id="colNumStart" value="7" style="width:30" v-model="colStart" placeholder="#"></input><br>
-                    Row names starting at 
+                    Row Starting Letter:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <select id="rowNameStart" v-model="rowStart">
                             <option value="A">A</option><option value="B">B</option><option value="C">C</option>
                             <option value="D">D</option><option value="E">E</option><option value="F">F</option>
@@ -112,6 +107,7 @@
                             <option value="V">V</option><option value="W">W</option><option value="X">X</option>
                             <option value="Y">Y</option><option value="Z">Z</option>
                         </select>
+                        
                 </template>
                 <template v-if="sectionType=='Table'">
                     Table Type: <form>
@@ -126,7 +122,6 @@
                     XSeats: <input type="text" id="addXSeats" value="5" style="width:30" v-model="xSeats" placeholder="#"></input>
                     YSeats: <input type="text" id="addYSeats" value="5" style="width:30" v-model="ySeats" placeholder="#"></input>
                 </template>
-                
                 <br>
             </form>
             <!-- v-on calls "submitSeatingData" when a click event is detected on this button  -->
@@ -141,14 +136,14 @@
         <div v-show="showEditSeatingForm">
             <form>
                 <!-- v-model directive binds data from field to data in Vue instance -->
-                Name: <input type="text" id="editName" value="Test Name" v-model ="sectionName" placeholder="Section Name"><br>
-                Price: <input type="number" id="newPrice" style="width: 100" v-model="price"><br>
+                Name: <input type="text" id="editName" value="Test Name" v-model ="sectionName" placeholder="Section Name" required><br>
+                Price: &nbsp;<input type="number" id="newPrice" style="width: 100" v-model="price"><br>
                 <!--<p>Seating Type</p><br>-->
-                Section Type: <form>
+                <!--Section Type: <form>
                     <input type="radio" name="SectionType" value="Seating" v-model = "sectionType"> Seating
                     <input type="radio" name="SectionType" value="Table" v-model = "sectionType"> Table
                     <input type="radio" name="SectionType" value="General" v-model = "sectionType"> General
-                </form>
+                </form>-->
                 <template v-if="sectionType!='General'">
                     Quality: <form>
                         <input type="radio"  name="Type" value="VIP" v-model ="seatingType"> VIP
@@ -195,29 +190,8 @@
             </form>
             <!-- v-on calls "submitSeatingData" when a click event is detected on this button  -->
             <button v-on:click ="submitEditSeating">Submit</button>
-            <!-- Debugging to see that the form toggle flag is being set -->
-        <!--<p v-show="false"><span>{{showAddSeatForm}}</span></p>-->
         </div>
     </template>
-
-    <!--<template id = "edit-form">-->
-        <!--&lt;!&ndash; v-show directive makes div invisible if "showEditSeatingForm" is false &ndash;&gt;-->
-        <!--<div v-show="showEditSeatingForm">-->
-            <!--<form>-->
-                <!--Edit Seating <br>-->
-                <!--Name: <input type="text" id="newName" v-model="name" placeholder="Section Name"></input><br>-->
-                <!--Seating Type: <form>-->
-                    <!--<input type="radio"  name="Type" value="VSeating" v-model ="seatingType" :checked="seatingType=='VSeating'"> VIP-->
-                    <!--<input type="radio" name="Type" value="NSeating" v-model ="seatingType" :checked="seatingType=='NSeating'"> Seating-->
-                    <!--<input type="radio" name="Type" value="Standing" v-model ="seatingType" :checked="seatingType=='Standing'"> Standing-->
-                <!--</form>-->
-                <!--Columns: <input type="text" id="newCols" style="width:30" v-model="cols" placeholder="#"></input>-->
-                <!--Rows: <input type="text" id="newRows" style="width:30" v-model="rows" placeholder="#"></input>-->
-                <!--<br>-->
-            <!--</form>-->
-            <!--<button v-on:click ="submitEditSeating">Submit</button>-->
-        <!--</div>-->
-    <!--</template>-->
 
     <script src="main.js"></script>
 </html>

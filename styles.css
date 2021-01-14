@@ -4,6 +4,13 @@ html,body {
     margin: 0;
     padding: 0;
 }
+.dropdown-menu { 
+    background-color: #ffffff; 
+}
+
+#add-form{
+    background-color: #FF0000;
+}
 
 #wrapper {
     height: calc(100vh - 55px);
