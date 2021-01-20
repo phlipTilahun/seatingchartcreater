@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 const fabCanvas = new fabric.Canvas('c');
 
 fabCanvas.setWidth(window.innerWidth);
@@ -37,6 +36,7 @@ function editSeating() {
 function regroupSeating() {
     bus.$emit('sigRegroupSeating',  []);
 };
+
 
 
 // pans with alt key
@@ -398,6 +398,52 @@ Vue.component('edit-form', {
     }
 });
 
+
+Vue.component('save-form',{
+    template: '#save-form',
+    data(){
+        return{
+            name: "",
+            showSaveSeatingForm: false
+        };
+    },
+    methods: {
+        saveSeating() {
+            var fileName = "seat-map.json";
+            var jsonString = JSON.stringify(fabCanvas);
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(jsonString));
+            element.setAttribute('download', fileName);
+            //console.log(jsonString)
+            
+            const requestOptions = {
+                method: 'POST',
+                headers: { 
+                    'Accept': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'multipart/form-data',
+                },
+                body: new FormData().append('seatingarrangment',jsonString)
+              };
+            fetch(`/savechart?name=${this.name}`,requestOptions)
+            .then(response => console.log(response))
+            .catch(error => console.log(error))
+
+            this.showSaveSeatingForm = false;
+        }
+    },
+
+    created() {
+        bus.$on('sigSaveSeatingFormOn', () => {
+            this.showSaveSeatingForm = true;
+        });
+        bus.$on('sigSaveSeatingFormOff', () => {
+            this.showSaveSeatingForm = false;
+        });
+    },
+});
+
+
 Vue.component('drop-down-menu', {
     template: '#drop-down-menu',
     data() {
@@ -410,23 +456,26 @@ Vue.component('drop-down-menu', {
                 // console.log('stopped');
                 e.stopPropagation();
             });
-        },
+        },/*
         performDownload(){
-            // console.log("download performing on "+ name);
             var fileName = "seat-map.json";
             var jsonString = JSON.stringify(fabCanvas);
-            // console.log("jsonString:");
-            // console.log(jsonString);
             var element = document.createElement('a');
             element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(jsonString));
             element.setAttribute('download', fileName);
-
+            console.log(jsonString)
             element.style.display = 'none';
             document.body.appendChild(element);
-
             element.click();
 
             document.body.removeChild(element);
+        },*/
+        setSaveSeating(){
+            bus.$emit('sigSaveSeatingFormOn');
+            bus.$emit('sigAddSeatFormOff');
+            bus.$emit('sigEditSeatFormOff');
+            bus.$emit('sigAddGenFormOff');
+            bus.$emit('sigAddTableFormOff');
         },
         setAddSeating() {
             // emits a bus signal to toggle the add seating form.
@@ -434,6 +483,7 @@ Vue.component('drop-down-menu', {
             bus.$emit('sigEditSeatFormOff');
             bus.$emit('sigAddGenFormOff');
             bus.$emit('sigAddTableFormOff');
+            bus.$emit('sigSaveSeatingFormOff');
         },
         setDeleteSeating() {
             // emits a bus signal to toggle both forms off
@@ -443,6 +493,7 @@ Vue.component('drop-down-menu', {
             bus.$emit('sigDeleteSeating');
             bus.$emit('sigAddGenFormOff');
             bus.$emit('sigAddTableFormOff');
+            bus.$emit('sigSaveSeatingFormOff');
         },
         setEditTool() {
             // emits a bus signal to toggle the edit seating form
@@ -450,6 +501,7 @@ Vue.component('drop-down-menu', {
             bus.$emit('sigAddSeatFormOff');
             bus.$emit('sigAddGenFormOff');
             bus.$emit('sigAddTableFormOff');
+            bus.$emit('sigSaveSeatingFormOff');
         },
         // NEW STUFF
         setAddGeneral(){ 
@@ -458,6 +510,7 @@ Vue.component('drop-down-menu', {
             bus.$emit('sigEditSeatFormOff');
             bus.$emit('sigAddGenFormOn');
             bus.$emit('sigAddTableFormOff');
+            bus.$emit('sigSaveSeatingFormOff');
         },
         setAddTable(){ 
             // emits a bus signal to toggle the add general form.
@@ -465,9 +518,12 @@ Vue.component('drop-down-menu', {
             bus.$emit('sigEditSeatFormOff');
             bus.$emit('sigAddGenFormOff');
             bus.$emit('sigAddTableFormOn');
+            bus.$emit('sigSaveSeatingFormOff');
         },
     }
 });
+
+
 
 Vue.component('add-general-form',{
     template: '#add-general-form',
